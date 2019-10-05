@@ -59,8 +59,8 @@ impl Snowberry {
     }
 
     fn to_unix_time(&self, time: &SystemTime) -> i64 {
-        let dur =
-        time.duration_since(UNIX_EPOCH)
+        let dur = time
+            .duration_since(UNIX_EPOCH)
             .expect("failed to generate unix time from SystemTime");
 
         dur.as_millis() as i64
@@ -82,15 +82,32 @@ impl Snowberry {
 #[cfg(test)]
 mod tests {
     use super::Snowberry;
-    use crate::{HARVESTED_COUNT_BITS, MAX_SEED, MAX_SOIL};
+    use crate::{
+        HARVESTED_COUNT_BITS, MAX_SEED, MAX_SOIL, SEED_BITS, SEED_SHIFT, SOIL_BITS, SOIL_SHIFT,
+    };
     use std::collections::HashSet;
-    use std::time::SystemTime;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     #[test]
     fn it_works() {
-        let mut s = Snowberry::new(30, 13);
+        let mut s = Snowberry::new(31, 30);
         let id = s.harvest();
         assert!(0 < id, format!("{}", id));
+
+        let soil_mask = 0b11111 << SOIL_SHIFT;
+        assert_eq!(id & soil_mask, 30 << SOIL_SHIFT);
+
+        let seed_mask = 0b11111 << SEED_SHIFT;
+        assert_eq!(id & seed_mask, 31 << SEED_SHIFT);
+
+        let now = SystemTime::now();
+        let id = s.harvest_from_time(&now).unwrap();
+        let unix_time = now.duration_since(UNIX_EPOCH).unwrap().as_millis();
+
+        assert_eq!(
+            id >> (HARVESTED_COUNT_BITS + SOIL_BITS + SEED_BITS),
+            unix_time as i64
+        );
     }
 
     #[test]
