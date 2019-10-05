@@ -1,9 +1,9 @@
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-pub const SEED_BITS: i64 = 5;
-pub const SOIL_BITS: i64 = 5;
-pub const HARVESTED_COUNT_BITS: i64 = 12;
+const SEED_BITS: i64 = 5;
+const SOIL_BITS: i64 = 5;
+const HARVESTED_COUNT_BITS: i64 = 12;
 
 const MAX_SEED: i64 = -1 ^ (-1 << SEED_BITS);
 const MAX_SOIL: i64 = -1 ^ (-1 << SOIL_BITS);
